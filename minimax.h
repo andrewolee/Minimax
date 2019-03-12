@@ -3,58 +3,63 @@
 template <class T>
 class Game {
 public:
-	// score of state
+	/*
+		The score for 'state'. Should return a positive integer
+		for an advantage to the maximizer and a negative integer for an 
+		advantage to the minimizer
+	*/
 	virtual int evaluate (T state) = 0;
 
-	// vector of all legal moves from state
-	virtual std::vector<T> legal_moves (T state) = 0;
+	/*
+		Vector of all legal moves from 'state'.
+	*/
+	virtual std::vector<T> legal_moves (T state, bool maximize) = 0;
 };
 
 template <class T>
 class Minimax {
 private:
-	Game<T> *game;
-	int strength; // max depth of search tree
-
-	typedef struct {
+	struct StateScore {
 		T state;
 		int score;
-	} StateScore;
+	};
 
-	// actual minimax
-	StateScore minimax (T state, int depth, bool maximize) {
-		StateScore ss;
-		std::vector<T> states = game->legal_moves(state);
-		if (depth == strength || states.empty()) {
-			ss.state = state;
-			ss.score = game->evaluate(state);
-			return ss;
+	Game<T> *game;
+	int strength; // Max depth of search tree
+	
+	// Actual minimax
+	StateScore minimax (T state, bool maximize, int depth) {
+		StateScore node;
+		std::vector<T> children = game->legal_moves(state, maximize);
+		if (depth == strength || children.empty()) {
+			node.state = state;
+			node.score = game->evaluate(state);
+			return node;
 		}
-		ss.score = 0;
-		ss.state = states[rand() * (states.size()) / RAND_MAX];
-		for (T s : states) {
-			int score = minimax(s, depth + 1, maximize).score;
-			if (maximize) {
-				if (score >= ss.score) {
-					ss.score = score;
-					ss.state = s;
-				}
-			} else {
-				if (score <= ss.score) {
-					ss.score = score;
-					ss.state = s;
-				}
+		// Default to a random node if no best move is found
+		if (maximize) {
+			node.score = INT_MIN;
+		} else {
+			node.score = INT_MAX;
+		}
+		for (T child : children) {
+			int score = minimax(child, !maximize, depth + 1).score;
+			if ((maximize && score > node.score) ||
+				(!maximize && score < node.score)) {
+				node.score = score;
+				node.state = child;
 			}
 		}
-		return ss;
+		return node;
 	}
 
 public:
 	Minimax (Game<T> *game, int strength)
 		: game(game), strength(strength) {}
 
-	// interface for minimax
+	// Minimax interface
 	T best_move (T state, bool maximize) {
-		return minimax(state, 0, maximize).state;
+		return minimax(state, maximize, 0).state;
 	}
 };
+
