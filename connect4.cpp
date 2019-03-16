@@ -24,7 +24,7 @@ public:
 	}
 
 	void print_board() {
-		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		for (int i = 0; i < WIDTH; i++) {
 			for (int j = 0; j < HEIGHT; j++) {
 				printf("|%c", board.state[i][j]);
@@ -128,50 +128,13 @@ public:
 
 		count = 0;
 		player = '_';
-		// Check diagonal wins
-		/*
-		for (int j = 0; j < WIDTH; j++) {
-			for (int k = 0; k < WIDTH - j; k++) {
-				if (board.state[k + j][k] == player && player != '_') {
-					count++;
-					if (count == 4) {
-						if (player == 'x') {
-							return 10;
-						} else {
-							return -10;
-						}
-					}
-				} else {
-					player = board.state[k + j][k];
-					count = 1;
-				}
-			}
-		}
-		for (int j = 0; j < WIDTH; j++) {
-			for (int k = 0; k < j + 1; k++) {
-				if (board.state[j - k][k] == player && player != '_') {
-					count++;
-					if (count == 4) {
-						if (player == 'x') {
-							return 10;
-						} else {
-							return -10;
-						}
-					}
-				} else {
-					player = board.state[j - k][k];
-					count = 1;
-				}
-			}
-		}
-		*/
 		return 0;
 	}
 };
 
 int main(void) {
 	Connect4* connect4 = new Connect4();
-	Minimax<Board> minimax = Minimax<Board>(connect4, 4);
+	Minimax<Board> minimax = Minimax<Board>(connect4, 8);
 	while (true) {
 		connect4->print_board();
 		connect4->player_move();
