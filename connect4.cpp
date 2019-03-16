@@ -128,13 +128,14 @@ public:
 
 		count = 0;
 		player = '_';
+
 		return 0;
 	}
 };
 
 int main(void) {
 	Connect4* connect4 = new Connect4();
-	Minimax<Board> minimax = Minimax<Board>(connect4, 8);
+	Minimax<Board> minimax = Minimax<Board>(connect4, 4);
 	while (true) {
 		connect4->print_board();
 		connect4->player_move();

@@ -28,17 +28,29 @@ private:
 	std::default_random_engine rng; // For returning random best move when there are multiple best moves
 	
 	// Actual minimax. Returns the score of a state
-	int minimax (T state, bool maximize, int depth) {
+	int minimax (T state, bool maximize, int depth, int alpha, int beta) {
 		std::vector<T> moves = game->legal_moves(state, maximize);
 		if (depth == strength || moves.empty()) {
-			return game->evaluate(state);
+			// Guarenteed wins now are better than guarenteed wins in future
+			if (maximize) {
+				return game->evaluate(state) - depth;
+			} else {
+				return game->evaluate(state) + depth;
+			}
+			
 		}
 		int score = maximize ? INT_MIN : INT_MAX;
 		for (T move : moves) {
-			int minimax_score = minimax(move, !maximize, depth + 1);
-			if ((maximize && minimax_score > score) ||
-				(!maximize && minimax_score < score)) {
-				score = minimax_score;
+			int minimax_score = minimax(move, !maximize, depth + 1, alpha, beta);
+			if (maximize) {
+				score = std::max(score, minimax_score);
+				alpha = std::max(alpha, score);
+			} else {
+				score = std::min(score, minimax_score);
+				beta = std::min(beta, score);
+			}
+			if (beta <= alpha) {
+				break;
 			}
 		}
 		return score;
@@ -58,7 +70,7 @@ public:
 		int score = maximize ? INT_MIN : INT_MAX;
 		T candidate;
 		for (T move : moves) {
-			int minimax_score = minimax(move, !maximize, 0);
+			int minimax_score = minimax(move, !maximize, 0, INT_MIN, INT_MAX);
 			if ((maximize && minimax_score > score) ||
 				(!maximize && minimax_score < score)) {
 				score = minimax_score;
