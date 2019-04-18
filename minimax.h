@@ -31,13 +31,8 @@ private:
 	int minimax (T state, bool maximize, int depth, int alpha, int beta) {
 		std::vector<T> moves = game->legal_moves(state, maximize);
 		if (depth == strength || moves.empty()) {
-			// Guarenteed wins now are better than guarenteed wins in future
-			if (maximize) {
-				return game->evaluate(state) - depth;
-			} else {
-				return game->evaluate(state) + depth;
-			}
-			
+			// Wins/loses in the far future are scored lower
+			return game->evaluate(state) / depth;
 		}
 		int score = maximize ? INT_MIN : INT_MAX;
 		for (T move : moves) {
@@ -70,7 +65,7 @@ public:
 		int score = maximize ? INT_MIN : INT_MAX;
 		T candidate;
 		for (T move : moves) {
-			int minimax_score = minimax(move, !maximize, 0, INT_MIN, INT_MAX);
+			int minimax_score = minimax(move, !maximize, 1, INT_MIN, INT_MAX);
 			if ((maximize && minimax_score > score) ||
 				(!maximize && minimax_score < score)) {
 				score = minimax_score;

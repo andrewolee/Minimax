@@ -1,12 +1,11 @@
 #include "minimax.h"
 #include <stdio.h>
 
-// Only supports square dimensions for now
-const int WIDTH = 9;
-const int  HEIGHT = 9;
+const int HEIGHT = 6;
+const int  WIDTH = 7;
 
 struct Board {
-	char state[WIDTH][HEIGHT];
+	char state[HEIGHT][WIDTH];
 };
 
 class Connect4 : public Game<Board> {
@@ -14,10 +13,9 @@ private:
 	Board board;
 
 public:
-	
 	Connect4 () {
-		for (int i = 0; i < WIDTH; i++) {
-			for (int j = 0; j < HEIGHT; j++) {
+		for (int i = 0; i < HEIGHT; i++) {
+			for (int j = 0; j < WIDTH; j++) {
 				board.state[i][j] = '_';
 			}
 		}
@@ -25,13 +23,12 @@ public:
 
 	void print_board() {
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-		for (int i = 0; i < WIDTH; i++) {
-			for (int j = 0; j < HEIGHT; j++) {
+		for (int i = 0; i < HEIGHT; i++) {
+			for (int j = 0; j < WIDTH; j++) {
 				printf("|%c", board.state[i][j]);
 			}
 			printf("|\n");
 		} 
-		printf("\n");
 		for (int i = 0; i < WIDTH; i++) {
 			printf("|%i", i + 1);
 		}
@@ -41,7 +38,7 @@ public:
 	void player_move() {
 		int j = 0;
 		do {
-			printf("Enter column number to place chip: \n");
+			printf("\nEnter column number to place chip: \n");
 			scanf("%u", &j);
 		} while(j < 1 || WIDTH < j);
 		j--;
@@ -86,16 +83,16 @@ public:
 	int evaluate (Board board) {
 		int count = 0;
 		char player = '_';
-		// Check vertical wins
+		// Check for vertical wins
 		for (int j = 0; j < WIDTH; j++) {
 			for (int i = 0; i < HEIGHT; i++) {
 				if (board.state[i][j] == player && player != '_') {
 					count++;
 					if (count == 4) {
 						if (player == 'x') {
-							return 10;
+							return INT_MAX;
 						} else {
-							return -10;
+							return INT_MIN;
 						}
 					}
 				} else {
@@ -107,16 +104,16 @@ public:
 
 		count = 0;
 		player = '_';
-		// Check horizontal wins
+		// Check for horizontal wins
 		for (int i = 0; i < HEIGHT; i++) {
 			for (int j = 0; j < WIDTH; j++) {
 				if (board.state[i][j] == player && player != '_') {
 					count++;
 					if (count == 4) {
 						if (player == 'x') {
-							return 10;
+							return INT_MAX;
 						} else {
-							return -10;
+							return INT_MIN;
 						}
 					}
 				} else {
@@ -126,8 +123,68 @@ public:
 			}
 		}
 
-		count = 0;
+		count = 0; 
 		player = '_';
+		// Check for diagonal wins
+		for (int i = 0; i < HEIGHT; i++) {
+			for (int k = 0; k < WIDTH && i + k < HEIGHT; k++) {
+				if (board.state[i + k][k] == player && player != '_') {
+					count++;
+					if (count == 4) {
+						if (player == 'x') {
+							return INT_MAX;
+						} else {
+							return INT_MIN;
+						}
+					}
+				} else {
+					player = board.state[i + k][k];
+					count = 1;
+				}
+			}
+		}
+
+		count = 0; 
+		player = '_';
+		// Check for diagonal wins
+		for (int i = 0; i < HEIGHT; i++) {
+			for (int k = 0; k < WIDTH && 0 <= i - k; k++) {
+				if (board.state[i - k][k] == player && player != '_') {
+					count++;
+					if (count == 4) {
+						if (player == 'x') {
+							return INT_MAX;
+						} else {
+							return INT_MIN;
+						}
+					}
+				} else {
+					player = board.state[i - k][k];
+					count = 1;
+				}
+			}
+		}
+
+		count = 0; 
+		player = '_';
+		// Check for diagonal wins
+		for (int i = 0; i < HEIGHT; i++) {
+			for (int k = 0; k < WIDTH && 0 <= i - k; k++) {
+				if (board.state[i - k][k] == player && player != '_') {
+					count++;
+					if (count == 4) {
+						if (player == 'x') {
+							return INT_MAX;
+						} else {
+							return INT_MIN;
+						}
+					}
+				} else {
+					player = board.state[i - k][k];
+					count = 1;
+				}
+			}
+		}
 
 		return 0;
 	}
@@ -135,19 +192,19 @@ public:
 
 int main(void) {
 	Connect4* connect4 = new Connect4();
-	Minimax<Board> minimax = Minimax<Board>(connect4, 4);
+	Minimax<Board> minimax = Minimax<Board>(connect4, 6);
 	while (true) {
 		connect4->print_board();
 		connect4->player_move();
-		if (connect4->evaluate(connect4->get_board()) == -10) {
+		if (connect4->evaluate(connect4->get_board()) == INT_MIN) {
 			connect4->print_board();
-			printf("You win!\n");
+			printf("\nYou win!\n\n:)\n\n");
 			break;
 		} 
 		connect4->set_board(minimax.best_move(connect4->get_board(), true));
-		if (connect4->evaluate(connect4->get_board()) == 10) {
+		if (connect4->evaluate(connect4->get_board()) == INT_MAX) {
 			connect4->print_board();
-			printf("You lose!\n");
+			printf("\nYou lose!\n\n:(\n\n");
 			break;
 		} 
 	}
