@@ -31,7 +31,7 @@ private:
 	int minimax (T state, bool maximize, int depth, int alpha, int beta) {
 		std::vector<T> moves = game->legal_moves(state, maximize);
 		if (depth == strength || moves.empty()) {
-			// Wins/loses in the far future are scored lower
+			// Wins/losses in the far future are scored lower
 			return game->evaluate(state) / depth;
 		}
 		int score = maximize ? INT_MIN : INT_MAX;
