@@ -13,8 +13,7 @@ struct Board {
     Chip state[WIDTH][HEIGHT];
     // The last move played, for easier win/loss checking
     Chip chip;
-    int x;
-    int y;
+    int x, y;
 };
 
 class Connect4 : public Game<Board> {
@@ -42,10 +41,10 @@ public:
                         printf("_");
                         break;
                     case X:
-                        printf("x");
+                        printf("X");
                         break;
                     case O:
-                        printf("y");
+                        printf("O");
                 }
             }
             printf("|\n");
@@ -109,7 +108,8 @@ public:
     int evaluate (Board board) {
         // Vertical wins
         int count = 0;
-        for (int y = std::max(0, board.y - 4); y < std::min(HEIGHT, board.y + 4); y++) {
+        for (int y = std::max(0, board.y - 3); 
+            y < std::min(HEIGHT, board.y + 4); y++) {
             if (board.state[board.x][y] == board.chip) {
                 count++;
             } else {
@@ -121,7 +121,8 @@ public:
         }
         // Horizontal wins
         count = 0;
-        for (int x = std::max(0, board.x - 4); x < std::min(HEIGHT, board.x + 4); x++) {
+        for (int x = std::max(0, board.x - 3); 
+            x < std::min(WIDTH, board.x + 4); x++) {
             if (board.state[x][board.y] == board.chip) {
                 count++;
             } else {
@@ -132,13 +133,37 @@ public:
             }
         }
         // Diagonal wins
+        count = 0;
+        for (int i = std::max(-3, std::max(-board.x, -board.y)); 
+            i < std::min(4, std::min(WIDTH - board.x, HEIGHT - board.y)); i++) {
+            if (board.state[board.x + i][board.y + i] == board.chip) {
+                count++;
+            } else {
+                count = 0;
+            }
+            if (count == 4) {
+                return board.chip == O ? O_WIN : X_WIN;
+            }
+        }
+        count = 0;
+        for (int i = std::max(-3, std::max(board.x + 1 - WIDTH, -board.y)); 
+            i < std::min(4, std::min(board.x, HEIGHT - board.y)); i++) {
+            if (board.state[board.x - i][board.y + i] == board.chip) {
+                count++;
+            } else {
+                count = 0;
+            }
+            if (count == 4) {
+                return board.chip == O ? O_WIN : X_WIN;
+            }
+        }
         return 0;
     }
 };
 
 int main(void) {
     Connect4* connect4 = new Connect4();
-    Minimax<Board> minimax = Minimax<Board>(connect4, 8);
+    Minimax<Board> minimax = Minimax<Board>(connect4, 6);
     while (true) {
         connect4->print_board();
         connect4->player_move();
