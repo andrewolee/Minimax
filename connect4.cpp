@@ -146,9 +146,9 @@ public:
             }
         }
         count = 0;
-        for (int i = std::max(-3, std::max(board.x + 1 - WIDTH, -board.y)); 
-            i < std::min(4, std::min(board.x, HEIGHT - board.y)); i++) {
-            if (board.state[board.x - i][board.y + i] == board.chip) {
+        for (int i = std::max(-3, std::max(-board.x, board.y - HEIGHT - 1)); 
+            i < std::min(4, std::min(WIDTH - board.x, board.y)); i++) {
+            if (board.state[board.x + i][board.y - i] == board.chip) {
                 count++;
             } else {
                 count = 0;
